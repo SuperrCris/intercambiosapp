@@ -95,9 +95,14 @@ void main() {
 
     final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
     expect(scaffold.backgroundColor, const Color(0xFF003510));
+    final appBar = tester.widget<AppBar>(find.byType(AppBar));
+    final title = appBar.title! as Text;
+    expect(title.data, 'Carta de Navidad');
+    expect(title.style?.fontFamily, 'Fortalesa');
+    expect(find.byIcon(Icons.arrow_back), findsOneWidget);
     final field = tester.widget<TextField>(find.byType(TextField));
-    expect(field.style?.color, Colors.white);
-    expect(field.decoration?.hintStyle?.color, const Color(0xFFC8E6C9));
+    expect(field.style?.color, const Color(0xFF3E2723));
+    expect(field.decoration?.hintStyle?.color, const Color(0xFF9E8A7A));
     final painter = tester
         .widgetList<CustomPaint>(find.byType(CustomPaint))
         .map((widget) => widget.painter)

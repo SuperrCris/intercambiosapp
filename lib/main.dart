@@ -400,7 +400,9 @@ class _StaggeredPhotoGrid extends StatelessWidget {
                               'Sin nombre',
                           photoUrl: entries[index].value['photoUrl'],
                           height: 224 + (index % 3) * 16,
-                          tilt: index.isEven ? -0.024 + -(Random().nextDouble() * 0.012) : 0.012 + (Random().nextDouble() * 0.012),
+                          tilt: index.isEven
+                              ? -0.024 + -(Random().nextDouble() * 0.012)
+                              : 0.012 + (Random().nextDouble() * 0.012),
                         ),
                       ),
                   ],
@@ -710,172 +712,219 @@ class _RegistrationPageState extends State<RegistrationPage> {
           child: _CandyCaneStripe(),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          tooltip: 'Salir del registro',
+          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text('Registro del Intercambio'),
+        title: const Text(
+          'Carta de Navidad',
+          style: TextStyle(
+            fontFamily: 'Fortalesa',
+            fontSize: 26,
+            color: Colors.white,
+          ),
+        ),
       ),
       body: Stack(
         children: [
           CustomPaint(
             painter: _ChristmasBackgroundPainter(),
             child: SingleChildScrollView(
-              padding: EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  Text(
-                    '🎁',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 60,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red,
-                      fontFamilyFallback: ['Noto Color Emoji'],
+              padding: const EdgeInsets.all(20),
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF8E7),
+                  border: Border.all(color: const Color(0xFFC62828), width: 4),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x55000000),
+                      blurRadius: 10,
+                      offset: Offset(0, 5),
                     ),
-                  ),
-                  SizedBox(height: 30),
-                  GestureDetector(
-                    onTap: () async {
-                      final XFile? image = await picker.pickImage(
-                        source: ImageSource.gallery,
-                        maxWidth: 512,
-                        maxHeight: 512,
-                        imageQuality: 80,
-                      );
-                      if (image != null) {
-                        setState(() {
-                          selectedImage = image;
-                        });
-                      }
-                    },
-                    child: Container(
-                      width: 200,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(45),
-                        border: Border.all(
-                          width: 8,
-                          color: const Color.fromARGB(255, 255, 91, 91),
-                        ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      'Querido participante,',
+                      style: TextStyle(
+                        color: const Color(0xFF2E7D32),
+                        fontFamily: 'Fortalesa',
+                        fontSize: 28,
                       ),
-                      clipBehavior: Clip.antiAlias,
-                      child: selectedImage != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(37),
-                              child: kIsWeb
-                                  ? FutureBuilder<Uint8List>(
-                                      future: selectedImage!.readAsBytes(),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasData) {
-                                          return Image.memory(
-                                            snapshot.data!,
-                                            fit: BoxFit.cover,
-                                          );
-                                        }
-                                        return CircularProgressIndicator();
-                                      },
-                                    )
-                                  : Image.file(
-                                      File(selectedImage!.path),
-                                      fit: BoxFit.cover,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Escribe tu nombre y deja una foto para formar parte de este intercambio.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFF5D4037),
+                        fontSize: 16,
+                        height: 1.35,
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      '🎁',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 60,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                        fontFamilyFallback: ['Noto Color Emoji'],
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    GestureDetector(
+                      onTap: () async {
+                        final XFile? image = await picker.pickImage(
+                          source: ImageSource.gallery,
+                          maxWidth: 512,
+                          maxHeight: 512,
+                          imageQuality: 80,
+                        );
+                        if (image != null) {
+                          setState(() {
+                            selectedImage = image;
+                          });
+                        }
+                      },
+                      child: Container(
+                        width: 200,
+                        height: 200,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(45),
+                          border: Border.all(
+                            width: 8,
+                            color: const Color.fromARGB(255, 255, 91, 91),
+                          ),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: selectedImage != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(37),
+                                child: kIsWeb
+                                    ? FutureBuilder<Uint8List>(
+                                        future: selectedImage!.readAsBytes(),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData) {
+                                            return Image.memory(
+                                              snapshot.data!,
+                                              fit: BoxFit.cover,
+                                            );
+                                          }
+                                          return CircularProgressIndicator();
+                                        },
+                                      )
+                                    : Image.file(
+                                        File(selectedImage!.path),
+                                        fit: BoxFit.cover,
+                                      ),
+                              )
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '📷',
+                                    style: TextStyle(
+                                      color: const Color(0xFFC62828),
+                                      fontSize: 50,
+                                      fontFamilyFallback: ['Noto Color Emoji'],
                                     ),
-                            )
-                          : Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  '📷',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 50,
-                                    fontFamilyFallback: ['Noto Color Emoji'],
                                   ),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  'Toca para agregar',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontFamilyFallback: ['Noto Color Emoji'],
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'Toca para agregar',
+                                    style: TextStyle(
+                                      color: const Color(0xFF795548),
+                                      fontFamilyFallback: ['Noto Color Emoji'],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    '(La foto es opcional)',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    'Nombre:',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  TextField(
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 24,
-                    ),
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      hintText:
-                          nombresPista[Random().nextInt(nombresPista.length)],
-                      hintStyle: TextStyle(
-                        color: const Color(0xFFC8E6C9),
-                        fontWeight: FontWeight.w400,
-                        fontSize: 20,
-                      ),
-                      border: UnderlineInputBorder(),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: const Color.fromARGB(255, 255, 88, 88),
-                          width: 4,
-                        ),
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: const Color.fromARGB(255, 244, 54, 54),
-                          width: 5,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 50),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        padding: EdgeInsets.symmetric(vertical: 20),
-                      ),
-                      onPressed: isLoading ? null : _submitRegistration,
-                      child: isLoading
-                          ? CircularProgressIndicator(color: Colors.white)
-                          : Text(
-                              '🎁 Participar',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                fontFamilyFallback: ['Noto Color Emoji'],
+                                ],
                               ),
-                            ),
+                      ),
                     ),
-                  ),
-                ],
+                    SizedBox(height: 10),
+                    Text(
+                      '(La foto es opcional)',
+                      style: TextStyle(
+                        color: const Color(0xFF795548),
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      'Nombre:',
+                      style: TextStyle(
+                        color: const Color(0xFF5D4037),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    TextField(
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: const Color(0xFF3E2723),
+                        fontWeight: FontWeight.w900,
+                        fontSize: 24,
+                      ),
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        hintText:
+                            nombresPista[Random().nextInt(nombresPista.length)],
+                        hintStyle: TextStyle(
+                          color: const Color(0xFF9E8A7A),
+                          fontWeight: FontWeight.w400,
+                          fontSize: 20,
+                        ),
+                        border: UnderlineInputBorder(),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: const Color(0xFFC62828),
+                            width: 4,
+                          ),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: const Color(0xFF2E7D32),
+                            width: 5,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 34),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFD4AF37),
+                          foregroundColor: Colors.white,
+                          side: const BorderSide(
+                            color: Color(0xFFC62828),
+                            width: 2,
+                          ),
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                        ),
+                        onPressed: isLoading ? null : _submitRegistration,
+                        child: isLoading
+                            ? CircularProgressIndicator(color: Colors.white)
+                            : Text(
+                                '🎁 Participar',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamilyFallback: ['Noto Color Emoji'],
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
