@@ -44,6 +44,7 @@ dependencies:
   
   # Image picker
   image_picker: ^1.0.7
+  flutter_svg: ^2.4.0
 
 dev_dependencies:
   flutter_test:
@@ -65,6 +66,10 @@ flutter:
   # Assets
   assets:
     - recursos/burro.png
+    - recursos/candy_cane_border.svg
+    - recursos/bordes.png
+    - recursos/bordes_superior_izquierdo.png
+    - recursos/bordes_inferior_derecho.png
   
   fonts:
     - family: Fortalesa
