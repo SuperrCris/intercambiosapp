@@ -2,6 +2,28 @@
 <html>
 <head>
   <!--
+    Force an immediate check for a newer Service Worker on every load, and
+    reload once automatically when a new one takes control. This runs before
+    flutter_bootstrap.js registers its own worker, so users who are stuck on
+    an old cached build get migrated to the latest version (via the
+    self-unregistering flutter_service_worker.js) without having to manually
+    clear site data.
+  -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => registration.update());
+      });
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!sessionStorage.getItem('swUpdateReload')) {
+          sessionStorage.setItem('swUpdateReload', '1');
+          window.location.reload();
+        }
+      });
+    }
+  </script>
+
+  <!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.
 
@@ -18,7 +40,26 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="Intercambios Gutierrada">
+  <meta name="keywords" content="Intercambios Gutierrada, intercambio navideño">
+  <meta name="author" content="Intercambios Gutierrada">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#003510">
+  <link rel="canonical" href="https://intercambiosaplicacion.web.app/">
+
+  <!-- Open Graph: preview when sharing the app URL -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Intercambios Gutierrada">
+  <meta property="og:locale" content="es_MX">
+  <meta property="og:title" content="Intercambios Gutierrada">
+  <meta property="og:url" content="https://intercambiosaplicacion.web.app/">
+  <meta property="og:image" content="https://intercambiosaplicacion.web.app/icons/Icon-512.png">
+  <meta property="og:image:alt" content="Icono navideño del intercambio Gutierrada">
+
+  <!-- Twitter/X preview -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Intercambios Gutierrada">
+  <meta name="twitter:image" content="https://intercambiosaplicacion.web.app/icons/Icon-512.png">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -29,8 +70,9 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>intercambioapp</title>
+  <title>Intercambios Gutierrada</title>
   <link rel="manifest" href="manifest.json">
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml">
   
   <!-- Noto Emoji Font to fix missing character warnings -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,5 +81,17 @@
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Intercambios Gutierrada",
+    "url": "https://intercambiosaplicacion.web.app/",
+    "description": "Aplicación web para participar en el intercambio navideño Gutierrada.",
+    "applicationCategory": "SocialNetworkingApplication",
+    "operatingSystem": "Any",
+    "image": "https://intercambiosaplicacion.web.app/icons/Icon-512.png"
+  }
+  </script>
 </body>
 </html>

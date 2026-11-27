@@ -76,37 +76,41 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Stack(
         children: [
-          CustomPaint(
-            painter: _ChristmasBackgroundPainter(),
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: Column(
-                  children: [
-                    CandyCaneHeader(
-                      height: 96,
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          widget.title,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Fortalesa',
+          Positioned.fill(
+            child: CustomPaint(
+              painter: _ChristmasBackgroundPainter(),
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: Column(
+                    children: [
+                      CandyCaneHeader(
+                        height: 96,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            widget.title,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Fortalesa',
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 14),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: ParticipantsSection(future: _participantsFuture),
+                      const SizedBox(height: 14),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: ParticipantsSection(
+                            future: _participantsFuture,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -375,57 +379,55 @@ class _StaggeredPhotoGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (var column = 0; column < 2; column++)
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: column == 0 ? 2 : 7,
-                  right: column == 0 ? 7 : 2,
-                  top: column == 0 ? 0 : 20,
-                ),
-                child: Column(
-                  children: [
-                    for (var index = column; index < entries.length; index += 2)
-                      Padding(
-                        padding: EdgeInsets.only(
-                          top: index == column ? 0 : 14 + (index % 2) * 7,
-                        ),
-                        child: _ParticipantPhotoCard(
-                          name:
-                              entries[index].value['nombre']?.toString() ??
-                              'Sin nombre',
-                          photoUrl: entries[index].value['photoUrl'],
-                          height: 224 + (index % 3) * 16,
-                          tilt: index.isEven
-                              ? -0.024 + -(Random().nextDouble() * 0.012)
-                              : 0.012 + (Random().nextDouble() * 0.012),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = min(3, max(2, constraints.maxWidth ~/ 190));
+        return Scrollbar(
+          thumbVisibility: true,
+          child: GridView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: columns,
+              crossAxisSpacing: 14,
+              mainAxisSpacing: 14,
+              childAspectRatio: 1,
             ),
-        ],
-      ),
+            itemCount: entries.length,
+            itemBuilder: (context, index) {
+              final entry = entries[index];
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 170),
+                  child: _ParticipantPhotoCard(
+                    id: entry.key,
+                    name: entry.value['nombre']?.toString() ?? 'Sin nombre',
+                    photoUrl: entry.value['photoUrl'],
+                    tilt: index.isEven
+                        ? -0.024 + -(Random().nextDouble() * 0.012)
+                        : 0.012 + (Random().nextDouble() * 0.012),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
 
 class _ParticipantPhotoCard extends StatelessWidget {
   const _ParticipantPhotoCard({
+    required this.id,
     required this.name,
     required this.photoUrl,
-    required this.height,
     required this.tilt,
   });
 
+  final String id;
   final String name;
   final dynamic photoUrl;
-  final double height;
   final double tilt;
 
   @override
@@ -433,59 +435,76 @@ class _ParticipantPhotoCard extends StatelessWidget {
     final String? imageUrl = photoUrl is String && photoUrl.isNotEmpty
         ? photoUrl
         : null;
-    return Transform.rotate(
-      angle: tilt,
-      child: Container(
-        height: height,
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(5),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x33000000),
-              blurRadius: 7,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(2),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: imageUrl != null
-                      ? Image.network(
-                          imageUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Image.asset(
+    return AspectRatio(
+      aspectRatio: 1,
+      child: Transform.rotate(
+        angle: tilt,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(5),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x33000000),
+                blurRadius: 7,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(2),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: imageUrl != null
+                        ? _buildNetworkImage(imageUrl)
+                        : FutureBuilder<String>(
+                            future: FirebaseStorage.instance
+                                .ref()
+                                .child('$id.png')
+                                .getDownloadURL(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return _buildNetworkImage(snapshot.data!);
+                              }
+                              return Image.asset(
                                 'recursos/burro.png',
                                 fit: BoxFit.cover,
-                              ),
-                        )
-                      : Image.asset('recursos/burro.png', fit: BoxFit.cover),
+                              );
+                            },
+                          ),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              name,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Color(0xFF4E342E),
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                fontStyle: FontStyle.italic,
+              const SizedBox(height: 8),
+              Text(
+                name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Color(0xFF4E342E),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.italic,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildNetworkImage(String url) {
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) =>
+          Image.asset('recursos/burro.png', fit: BoxFit.cover),
     );
   }
 }
@@ -544,6 +563,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final ImagePicker picker = ImagePicker();
   bool isLoading = false;
 
+  Future<void> _exitRegistration() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (mounted) {
+      await Navigator.of(context).maybePop();
+    }
+  }
+
   String _generateUniqueId() {
     final random = Random();
     String id = '';
@@ -594,13 +620,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
       // Upload photo if selected (optional)
       if (selectedImage != null) {
         final storageRef = FirebaseStorage.instance.ref().child('$id.png');
+        final metadata = SettableMetadata(
+          contentType: selectedImage!.mimeType ?? 'image/png',
+        );
 
         if (kIsWeb) {
           final bytes = await selectedImage!.readAsBytes();
-          await storageRef.putData(bytes);
+          await storageRef.putData(bytes, metadata);
         } else {
           final file = File(selectedImage!.path);
-          await storageRef.putFile(file);
+          await storageRef.putFile(file, metadata);
         }
 
         photoUrl = await storageRef.getDownloadURL();
@@ -711,10 +740,35 @@ class _RegistrationPageState extends State<RegistrationPage> {
           preferredSize: const Size.fromHeight(8),
           child: _CandyCaneStripe(),
         ),
-        leading: IconButton(
-          tooltip: 'Salir del registro',
-          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
-          onPressed: () => Navigator.of(context).pop(),
+        leadingWidth: 64,
+        leading: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Semantics(
+            button: true,
+            label: 'Salir',
+            child: InkWell(
+              onTap: _exitRegistration,
+              borderRadius: BorderRadius.circular(20),
+              child: Ink(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF8E0000),
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Text(
+                    'X',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
         title: const Text(
           'Carta de Navidad',
@@ -727,203 +781,253 @@ class _RegistrationPageState extends State<RegistrationPage> {
       ),
       body: Stack(
         children: [
-          CustomPaint(
-            painter: _ChristmasBackgroundPainter(),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF8E7),
-                  border: Border.all(color: const Color(0xFFC62828), width: 4),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x55000000),
-                      blurRadius: 10,
-                      offset: Offset(0, 5),
+          Positioned.fill(
+            child: CustomPaint(
+              painter: _ChristmasBackgroundPainter(),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF8E7),
+                    border: Border.all(
+                      color: const Color(0xFFC62828),
+                      width: 4,
                     ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      'Querido participante,',
-                      style: TextStyle(
-                        color: const Color(0xFF2E7D32),
-                        fontFamily: 'Fortalesa',
-                        fontSize: 28,
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x55000000),
+                        blurRadius: 10,
+                        offset: Offset(0, 5),
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Escribe tu nombre y deja una foto para formar parte de este intercambio.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color(0xFF5D4037),
-                        fontSize: 16,
-                        height: 1.35,
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    Text(
-                      '🎁',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 60,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                        fontFamilyFallback: ['Noto Color Emoji'],
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    GestureDetector(
-                      onTap: () async {
-                        final XFile? image = await picker.pickImage(
-                          source: ImageSource.gallery,
-                          maxWidth: 512,
-                          maxHeight: 512,
-                          imageQuality: 80,
-                        );
-                        if (image != null) {
-                          setState(() {
-                            selectedImage = image;
-                          });
-                        }
-                      },
-                      child: Container(
-                        width: 200,
-                        height: 200,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(45),
-                          border: Border.all(
-                            width: 8,
-                            color: const Color.fromARGB(255, 255, 91, 91),
-                          ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Querido Santa:,',
+                        style: TextStyle(
+                          color: const Color(0xFF2E7D32),
+                          fontFamily: 'Fortalesa',
+                          fontSize: 28,
                         ),
-                        clipBehavior: Clip.antiAlias,
-                        child: selectedImage != null
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(37),
-                                child: kIsWeb
-                                    ? FutureBuilder<Uint8List>(
-                                        future: selectedImage!.readAsBytes(),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.hasData) {
-                                            return Image.memory(
-                                              snapshot.data!,
-                                              fit: BoxFit.cover,
-                                            );
-                                          }
-                                          return CircularProgressIndicator();
-                                        },
-                                      )
-                                    : Image.file(
-                                        File(selectedImage!.path),
-                                        fit: BoxFit.cover,
-                                      ),
-                              )
-                            : Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    '📷',
-                                    style: TextStyle(
-                                      color: const Color(0xFFC62828),
-                                      fontSize: 50,
-                                      fontFamilyFallback: ['Noto Color Emoji'],
-                                    ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    'Toca para agregar',
-                                    style: TextStyle(
-                                      color: const Color(0xFF795548),
-                                      fontFamilyFallback: ['Noto Color Emoji'],
-                                    ),
-                                  ),
-                                ],
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          const Text(
+                            'Mi nombre es ',
+                            style: TextStyle(
+                              color: Color(0xFF5D4037),
+                              fontSize: 16,
+                              height: 1.35,
+                            ),
+                          ),
+                          Expanded(
+                            child: TextField(
+                              controller: nameController,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Color(0xFF3E2723),
+                                fontWeight: FontWeight.w900,
+                                fontSize: 20,
                               ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      '(La foto es opcional)',
-                      style: TextStyle(
-                        color: const Color(0xFF795548),
-                        fontSize: 12,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      'Nombre:',
-                      style: TextStyle(
-                        color: const Color(0xFF5D4037),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    TextField(
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: const Color(0xFF3E2723),
-                        fontWeight: FontWeight.w900,
-                        fontSize: 24,
-                      ),
-                      controller: nameController,
-                      decoration: InputDecoration(
-                        hintText:
-                            nombresPista[Random().nextInt(nombresPista.length)],
-                        hintStyle: TextStyle(
-                          color: const Color(0xFF9E8A7A),
-                          fontWeight: FontWeight.w400,
-                          fontSize: 20,
-                        ),
-                        border: UnderlineInputBorder(),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            color: const Color(0xFFC62828),
-                            width: 4,
-                          ),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            color: const Color(0xFF2E7D32),
-                            width: 5,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 34),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFD4AF37),
-                          foregroundColor: Colors.white,
-                          side: const BorderSide(
-                            color: Color(0xFFC62828),
-                            width: 2,
-                          ),
-                          padding: EdgeInsets.symmetric(vertical: 20),
-                        ),
-                        onPressed: isLoading ? null : _submitRegistration,
-                        child: isLoading
-                            ? CircularProgressIndicator(color: Colors.white)
-                            : Text(
-                                '🎁 Participar',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamilyFallback: ['Noto Color Emoji'],
+                              decoration: InputDecoration(
+                                hintText:
+                                    nombresPista[Random().nextInt(
+                                      nombresPista.length,
+                                    )],
+                                hintStyle: const TextStyle(
+                                  color: Color(0xFF9E8A7A),
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 16,
+                                ),
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 2,
+                                ),
+                                border: const UnderlineInputBorder(),
+                                enabledBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Color(0xFFC62828),
+                                    width: 3,
+                                  ),
+                                ),
+                                focusedBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Color(0xFF2E7D32),
+                                    width: 4,
+                                  ),
                                 ),
                               ),
+                            ),
+                          ),
+                          const Text(
+                            '.',
+                            style: TextStyle(
+                              color: Color(0xFF5D4037),
+                              fontSize: 16,
+                              height: 1.35,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 18),
+                      Text(
+                        '🎁',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 60,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                          fontFamilyFallback: ['Noto Color Emoji'],
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      GestureDetector(
+                        onTap: () async {
+                          final XFile? image = await picker.pickImage(
+                            source: ImageSource.gallery,
+                            maxWidth: 512,
+                            maxHeight: 512,
+                            imageQuality: 80,
+                          );
+                          if (image != null) {
+                            setState(() {
+                              selectedImage = image;
+                            });
+                          }
+                        },
+                        child: Container(
+                          width: 220,
+                          height: 250,
+                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x44000000),
+                                blurRadius: 8,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(2),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: selectedImage != null
+                                        ? kIsWeb
+                                              ? FutureBuilder<Uint8List>(
+                                                  future: selectedImage!
+                                                      .readAsBytes(),
+                                                  builder: (context, snapshot) {
+                                                    if (snapshot.hasData) {
+                                                      return Image.memory(
+                                                        snapshot.data!,
+                                                        fit: BoxFit.cover,
+                                                      );
+                                                    }
+                                                    return const Center(
+                                                      child:
+                                                          CircularProgressIndicator(),
+                                                    );
+                                                  },
+                                                )
+                                              : Image.file(
+                                                  File(selectedImage!.path),
+                                                  fit: BoxFit.cover,
+                                                )
+                                        : Container(
+                                            color: const Color.fromARGB(
+                                              255,
+                                              177,
+                                              177,
+                                              177,
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                const Text(
+                                                  '📷',
+                                                  style: TextStyle(
+                                                    color: Color(0xFFC62828),
+                                                    fontSize: 50,
+                                                    fontFamilyFallback: [
+                                                      'Noto Color Emoji',
+                                                    ],
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 8),
+                                                Text(
+                                                  'Toca para agregar',
+                                                  style: const TextStyle(
+                                                    color: Color(0xFF795548),
+                                                    fontFamilyFallback: [
+                                                      'Noto Color Emoji',
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Foto',
+                                style: TextStyle(
+                                  color: Color(0xFF4E342E),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+
+                      SizedBox(height: 20),
+                      SizedBox(height: 34),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFD4AF37),
+                            foregroundColor: Colors.white,
+                            side: const BorderSide(
+                              color: Color(0xFFC62828),
+                              width: 2,
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 20),
+                          ),
+                          onPressed: isLoading ? null : _submitRegistration,
+                          child: isLoading
+                              ? CircularProgressIndicator(color: Colors.white)
+                              : Text(
+                                  '🎁 Participar',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamilyFallback: ['Noto Color Emoji'],
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

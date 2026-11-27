@@ -65,6 +65,7 @@ flutter:
   
   # Assets
   assets:
+    - recursos/icono2026.png
     - recursos/burro.png
     - recursos/candy_cane_border.svg
     - recursos/bordes.png
