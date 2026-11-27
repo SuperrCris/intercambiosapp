@@ -15,9 +15,12 @@ jobs:
       - uses: actions/checkout@v4
       
       # Setup Flutter
+      # Uses the latest stable release instead of a pinned version, since
+      # pubspec.yaml's SDK constraint (^3.10.0) requires a Flutter release
+      # newer than the previously pinned 3.24.5, which was causing
+      # `flutter pub get` to fail and the preview deploy to never run.
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.5'
           channel: 'stable'
       
       # Get Flutter dependencies
